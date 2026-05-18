@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Login - FERKAUTOPARTS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+
+        body {
+            background: url('bg.png') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-box {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            width: 350px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .logo-text {
+            margin-bottom: 30px;
+        }
+
+        .logo-text h1 {
+            color: white;
+            font-size: 28px;
+            letter-spacing: 2px;
+        }
+
+        .logo-text p {
+            color: #2ecc71;
+            font-size: 12px;
+            letter-spacing: 3px;
+            margin-top: 5px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            color: white;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 14px;
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #2ecc71;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #27ae60;
+        }
+
+        .error {
+            color: #ff6b6b;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .info {
+            margin-top: 20px;
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+        }
+
+        .info strong {
+            color: #2ecc71;
+        }
+
+        @media (max-width: 480px) {
+            .login-box { width: 90%; padding: 30px 20px; }
+            .logo-text h1 { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-box">
+    <div class="logo-text">
+        <h1>FERKAUTOPARTS</h1>
+        <p>PEÇAS AUTOMOTIVAS</p>
+    </div>
+    
+    <div class="input-group">
+        <label>Usuário</label>
+        <input type="text" id="usuario" placeholder="Digite seu usuário">
+    </div>
+    
+    <div class="input-group">
+        <label>Senha</label>
+        <input type="password" id="senha" placeholder="Digite sua senha">
+    </div>
+    
+    <button onclick="fazerLogin()">ENTRAR</button>
+    
+    <div class="error" id="erroLogin">❌ Usuário ou senha incorretos!</div>
+    
+    <div class="info">
+    <strong>Acesso ao Sistema</strong><br>
+    Entre com suas credenciais<br>
+    Feito por 
+        <span style="color:#ffcc00;">MTG SYSTEM DEVELOPMENT</span>
+    </strong><br>
+</div>
+
+</div>
+
+<script>
+    const USUARIOS = [
+        { login: 'admin', senha: '123456', nome: 'Administrador' },
+        { login: 'felipe', senha: '436224', nome: 'Felipe' }
+    ];
+
+    function fazerLogin() {
+        const login = document.getElementById('usuario').value;
+        const senha = document.getElementById('senha').value;
+        const usuario = USUARIOS.find(u => u.login === login && u.senha === senha);
+        
+        if (usuario) {
+            sessionStorage.setItem('usuario', JSON.stringify(usuario));
+            window.location.href = 'Produtos.html';
+        } else {
+            document.getElementById('erroLogin').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('erroLogin').style.display = 'none';
+            }, 3000);
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Produtos - FERKAUTOPARTS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        
+    body {
+    background: #0A2A4A;
+    min-height: 100vh;
+    background-image: url('images/bg.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-attachment: fixed;
+        }
+        
+        /* SIDEBAR */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+            padding: 25px 20px;
+            transition: transform 0.3s ease;
+            z-index: 100;
+        }
+        
+        .sidebar .logo {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .sidebar .logo h2 {
+            color: white;
+            font-size: 22px;
+        }
+        
+        .sidebar .logo p {
+            color: #2ecc71;
+            font-size: 10px;
+            letter-spacing: 2px;
+            margin-top: 5px;
+        }
+        
+        .sidebar a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 12px 15px;
+            margin: 8px 0;
+            border-radius: 10px;
+            transition: 0.3s;
+        }
+        
+        .sidebar a:hover, .sidebar a.active {
+            background: #2ecc71;
+        }
+        
+        .sidebar-user {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .sidebar-user .avatar {
+            width: 40px;
+            height: 40px;
+            background: #2ecc71;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .sidebar-user .info h4 { color: white; font-size: 14px; }
+        .sidebar-user .info p { color: rgba(255,255,255,0.6); font-size: 11px; }
+        
+        /* MAIN */
+        .main {
+            margin-left: 260px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+        
+        /* TOPBAR */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.3);
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+        
+        .topbar h1 { color: white; font-size: 22px; }
+        
+        .logout-btn {
+            background: #e74c3c;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        /* MENU HAMBURGUER */
+        .hamburger {
+            display: block;
+            font-size: 28px;
+            color: white;
+            cursor: pointer;
+            background: none;
+            border: none;
+            margin-right: 15px;
+        }
+        
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+        
+        /* SIDEBAR FECHADA POR PADRÃO */
+        .sidebar {
+            transform: translateX(-100%);
+        }
+        
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        
+        .main {
+            margin-left: 0;
+        }
+        
+        /* HEADER */
+        .produtos-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .produtos-header h2 { color: white; font-size: 28px; }
+        
+        .btn-novo {
+            background: #2ecc71;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        /* BOTÕES DE AÇÃO */
+        .botoes-acao {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-export-json {
+            background: #3498db;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .btn-relatorio {
+            background: #9b59b6;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        /* FILTROS */
+        .filtros {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filtros input, .filtros select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #2ecc71;
+            background: #0A2A4A;
+            color: white;
+            outline: none;
+            cursor: pointer;
+        }
+        
+        .filtros select option {
+            background: #0A2A4A;
+            color: white;
+        }
+        
+        .filtros input {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .filtros input::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+        
+        /* TABELA */
+        .tabela-container {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            text-align: left;
+            padding: 15px;
+            color: #2ecc71;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        td {
+            padding: 12px 15px;
+            color: white;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        /* STATUS */
+        .status-critico { background: rgba(231,76,60,0.3); color: #ff6b6b; padding: 4px 10px; border-radius: 20px; font-size: 12px; display: inline-block; }
+        .status-baixo { background: rgba(241,196,15,0.3); color: #f1c40f; padding: 4px 10px; border-radius: 20px; font-size: 12px; display: inline-block; }
+        .status-normal { background: rgba(46,204,113,0.3); color: #2ecc71; padding: 4px 10px; border-radius: 20px; font-size: 12px; display: inline-block; }
+        
+        /* AÇÕES */
+        .acoes {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .acoes button {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .acoes button:hover { background: #2ecc71; }
+        
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: #0A2A4A;
+            padding: 25px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid #2ecc71;
+        }
+        
+        .modal-content h3 { color: white; margin-bottom: 20px; }
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255,255,255,0.15);
+            color: white;
+        }
+        
+        .modal-content input::placeholder { color: rgba(255,255,255,0.6); }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .modal-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .btn-salvar { background: #2ecc71; color: white; }
+        .btn-cancelar { background: #e74c3c; color: white; }
+        
+        /* RESPONSIVO */
+        @media (max-width: 768px) {
+            .main { padding: 15px; }
+            .botoes-acao { justify-content: center; }
+            .btn-export-json, .btn-relatorio { flex: 1; text-align: center; }
+            .filtros { flex-direction: column; }
+            .filtros input, .filtros select { width: 100%; }
+        }
+        
+        @media (max-width: 480px) {
+            .main { padding: 15px; }
+            .produtos-header h2 { font-size: 22px; }
+            .acoes button { padding: 8px 12px; }
+            th, td { padding: 10px; font-size: 12px; }
+        }
+        
+        /* BOTÃO LIBRAS */
+        .vlibras-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 55px;
+            height: 55px;
+            background: #2ecc71;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 9999;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: 0.3s;
+            border: 2px solid rgba(255,255,255,0.3);
+            font-size: 28px;
+        }
+        
+        .vlibras-btn:hover {
+            transform: scale(1.05);
+            background: #27ae60;
+        }
+        
+        @media (max-width: 768px) {
+            .vlibras-btn {
+                width: 45px;
+                height: 45px;
+                bottom: 15px;
+                right: 15px;
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <div class="logo">
+        <h2>FERKAUTOPARTS</h2>
+        <p>PEÇAS AUTOMOTIVAS</p>
+    </div>
+    <a href="Produtos.html" class="active">📦 Produtos</a>
+    <a href="Estoque.html">📊 Estoque</a>
+    <a href="Transacoes.html">🔄 Transações</a>
+    <div class="sidebar-user">
+        <div class="avatar" id="userAvatar">A</div>
+        <div class="info">
+            <h4 id="userNome">Administrador</h4>
+            <p id="userPerfil">admin</p>
+        </div>
+    </div>
+</div>
+
+<!-- OVERLAY -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- MAIN -->
+<div class="main">
+    <div class="topbar">
+        <button class="hamburger" id="hamburgerBtn">☰</button>
+        <h1>📦 Produtos</h1>
+        <button class="logout-btn" id="logoutBtn">Sair</button>
+    </div>
+    
+    <div class="botoes-acao">
+        <button class="btn-export-json" id="btnExportarJSON">💾 Exportar JSON (para C#)</button>
+        <button class="btn-relatorio" id="btnRelatorio">📊 Gerar Relatório (direto)</button>
+    </div>
+    
+    <div class="produtos-header">
+        <h2>Produtos</h2>
+        <button class="btn-novo" id="btnNovo">+ Novo Produto</button>
+    </div>
+    
+    <div class="filtros">
+        <input type="text" id="busca" placeholder="🔍 Buscar por nome ou SKU...">
+        <select id="filtroCategoria"><option value="">Todas categorias</option></select>
+        <select id="filtroEstoque">
+            <option value="">Todos os estoques</option>
+            <option value="critico">Estoque Crítico (&lt;10)</option>
+            <option value="baixo">Estoque Baixo (10-29)</option>
+            <option value="normal">Estoque Normal (≥30)</option>
+        </select>
+    </div>
+    
+    <div class="tabela-container">
+    <table>
+        <thead>
+            <tr>
+                <th>SKU</th>
+                <th>Produto</th>
+                <th>Categoria</th>
+                <th>Estoque</th>
+                <th>Preço</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="tabelaProdutos"></tbody>
+    </table>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modalProduto">
+    <div class="modal-content">
+        <h3 id="modalTitulo">Novo Produto</h3>
+        <input type="hidden" id="produtoId">
+        <input type="text" id="produtoSku" placeholder="SKU">
+        <input type="text" id="produtoNome" placeholder="Nome do produto">
+        <input type="text" id="produtoCategoria" placeholder="Categoria">
+        <input type="number" id="produtoEstoque" placeholder="Quantidade">
+        <input type="number" step="0.01" id="produtoPreco" placeholder="Preço (R$)">
+        <div class="modal-buttons">
+            <button class="btn-cancelar" id="cancelarModal">Cancelar</button>
+            <button class="btn-salvar" id="salvarProduto">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<!-- LIBRAS - ACESSIBILIDADE PARA SURDOS -->
+<div class="vlibras-btn" id="vlibrasBtn">🤟</div>
+<div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+    </div>
+</div>
+
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>
+    // ============================================================
+    // BANCO DE DADOS - 30 PRODUTOS
+    // ============================================================
+    let PRODUTOS = [
+        { id: 1, sku: '100001', nome: 'Pastilha de Freio Dianteira', categoria: 'Freios', estoque: 120, preco: 89.90 },
+        { id: 2, sku: '100002', nome: 'Disco de Freio Ventilado', categoria: 'Freios', estoque: 45, preco: 219.90 },
+        { id: 3, sku: '100003', nome: 'Filtro de Ar do Motor', categoria: 'Filtros', estoque: 80, preco: 39.90 },
+        { id: 4, sku: '100004', nome: 'Filtro de Óleo', categoria: 'Filtros', estoque: 150, preco: 29.90 },
+        { id: 5, sku: '100005', nome: 'Filtro de Combustível', categoria: 'Filtros', estoque: 95, preco: 34.90 },
+        { id: 6, sku: '100006', nome: 'Amortecedor Dianteiro', categoria: 'Suspensão', estoque: 20, preco: 289.00 },
+        { id: 7, sku: '100007', nome: 'Amortecedor Traseiro', categoria: 'Suspensão', estoque: 18, preco: 279.00 },
+        { id: 8, sku: '100008', nome: 'Kit Embreagem Completo', categoria: 'Motor', estoque: 10, preco: 829.90 },
+        { id: 9, sku: '100009', nome: 'Correia Dentada', categoria: 'Motor', estoque: 140, preco: 67.90 },
+        { id: 10, sku: '100010', nome: 'Correia do Alternador', categoria: 'Motor', estoque: 110, preco: 45.00 },
+        { id: 11, sku: '100011', nome: 'Jogo de Velas', categoria: 'Elétrica', estoque: 90, preco: 99.90 },
+        { id: 12, sku: '100012', nome: 'Bobina de Ignição', categoria: 'Elétrica', estoque: 35, preco: 189.90 },
+        { id: 13, sku: '100013', nome: 'Bateria Automotiva 60Ah', categoria: 'Elétrica', estoque: 25, preco: 499.00 },
+        { id: 14, sku: '100014', nome: 'Bomba de Combustível', categoria: 'Motor', estoque: 30, preco: 364.00 },
+        { id: 15, sku: '100015', nome: 'Radiador', categoria: 'Arrefecimento', estoque: 12, preco: 589.90 },
+        { id: 16, sku: '100016', nome: 'Ventoinha do Radiador', categoria: 'Arrefecimento', estoque: 22, preco: 249.90 },
+        { id: 17, sku: '100017', nome: 'Sensor de Oxigênio', categoria: 'Elétrica', estoque: 40, preco: 179.90 },
+        { id: 18, sku: '100018', nome: 'Sensor MAP', categoria: 'Elétrica', estoque: 28, preco: 159.90 },
+        { id: 19, sku: '100019', nome: 'Alternador 120A', categoria: 'Elétrica', estoque: 8, preco: 1050.00 },
+        { id: 20, sku: '100020', nome: 'Motor de Partida', categoria: 'Elétrica', estoque: 9, preco: 899.00 },
+        { id: 21, sku: '100021', nome: 'Rolamento de Roda', categoria: 'Direção', estoque: 70, preco: 79.90 },
+        { id: 22, sku: '100022', nome: 'Terminal de Direção', categoria: 'Direção', estoque: 55, preco: 69.90 },
+        { id: 23, sku: '100023', nome: 'Pivô de Suspensão', categoria: 'Suspensão', estoque: 48, preco: 74.90 },
+        { id: 24, sku: '100024', nome: 'Braço de Suspensão', categoria: 'Suspensão', estoque: 15, preco: 329.90 },
+        { id: 25, sku: '100025', nome: 'Kit Correia + Tensor', categoria: 'Motor', estoque: 20, preco: 249.90 },
+        { id: 26, sku: '100026', nome: 'Óleo de Motor 5W30 (1L)', categoria: 'Motor', estoque: 200, preco: 49.90 },
+        { id: 27, sku: '100027', nome: 'Fluido de Freio DOT4', categoria: 'Freios', estoque: 160, preco: 24.90 },
+        { id: 28, sku: '100028', nome: 'Aditivo de Radiador', categoria: 'Arrefecimento', estoque: 130, preco: 19.90 },
+        { id: 29, sku: '100029', nome: 'Limpador de Para-brisa', categoria: 'Acessórios', estoque: 100, preco: 22.90 },
+        { id: 30, sku: '100030', nome: 'Cabo de Vela', categoria: 'Elétrica', estoque: 60, preco: 59.90 }
+    ];
+    
+    let TRANSACOES = [
+        { id: 1, produtoId: 1, produtoNome: 'Pastilha de Freio Dianteira', tipo: 'entrada', quantidade: 50, data: new Date().toISOString(), obs: 'Reposição inicial' },
+        { id: 2, produtoId: 19, produtoNome: 'Alternador 120A', tipo: 'saida', quantidade: 2, data: new Date().toISOString(), obs: 'Venda cliente' }
+    ];
+    
+    let nextId = 31;
+    let nextTxId = 3;
+    
+    function formatarMoeda(v) { return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }); }
+    function getStatusClass(e) { return e < 10 ? 'status-critico' : (e < 30 ? 'status-baixo' : 'status-normal'); }
+    function getStatusTexto(e) { return e < 10 ? 'CRÍTICO' : (e < 30 ? 'BAIXO' : 'NORMAL'); }
+    function salvarDados() { localStorage.setItem('ferka_produtos', JSON.stringify(PRODUTOS)); localStorage.setItem('ferka_transacoes', JSON.stringify(TRANSACOES)); }
+    function carregarDados() { const s = localStorage.getItem('ferka_produtos'); if (s) PRODUTOS = JSON.parse(s); const t = localStorage.getItem('ferka_transacoes'); if (t) TRANSACOES = JSON.parse(t); }
+    carregarDados();
+    
+    // INICIAR LIBRAS
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+    document.getElementById('vlibrasBtn').onclick = () => {
+        const btn = document.querySelector('[vw-access-button]');
+        if (btn) btn.click();
+    };
+    
+    function exportarJSON() {
+        const dados = { produtos: PRODUTOS, transacoes: TRANSACOES, dataExportacao: new Date().toISOString(), totalProdutos: PRODUTOS.length, valorTotalEstoque: PRODUTOS.reduce((t,p)=> t + (p.estoque*p.preco),0) };
+        const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'dados_estoque.json';
+        link.click();
+        URL.revokeObjectURL(link.href);
+        alert('✅ Dados exportados!');
+    }
+    
+    function gerarRelatorio() {
+        const total = PRODUTOS.length;
+        const valorTotal = PRODUTOS.reduce((t,p) => t + (p.estoque*p.preco),0);
+        const criticos = PRODUTOS.filter(p => p.estoque < 10);
+        const alerta = PRODUTOS.filter(p => p.estoque >= 10 && p.estoque < 30);
+        const saudaveis = PRODUTOS.filter(p => p.estoque >= 30);
+        const categorias = {};
+        PRODUTOS.forEach(p => {
+            if (!categorias[p.categoria]) categorias[p.categoria] = { count: 0, valor: 0, produtos: [] };
+            categorias[p.categoria].count++;
+            categorias[p.categoria].valor += p.estoque * p.preco;
+            categorias[p.categoria].produtos.push(p);
+        });
+        let relatorio = `╔══════════════════════════════════════════════════════════════════╗
+║              FERKAUTOPARTS - RELATÓRIO DE ESTOQUE                ║
+║              Data: ${new Date().toLocaleString('pt-BR')}               ║
+╚══════════════════════════════════════════════════════════════════╝
+
+📊 RESUMO GERAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Total de produtos: ${total}
+• Valor total em estoque: R$ ${valorTotal.toFixed(2).replace('.', ',')}
+• Produtos saudáveis (≥30): ${saudaveis.length}
+• Produtos em alerta (10-29): ${alerta.length}
+• Produtos CRÍTICOS (<10): ${criticos.length}
+
+⚠️ PRODUTOS CRÍTICOS (URGENTE!)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`;
+        criticos.forEach(p => { relatorio += `• ${p.nome} (SKU: ${p.sku}) - Estoque: ${p.estoque} - Preço: R$ ${p.preco.toFixed(2).replace('.', ',')}\n`; });
+        relatorio += `\n📁 PRODUTOS POR CATEGORIA\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        for (const [cat, dados] of Object.entries(categorias)) { relatorio += `\n${cat}: ${dados.count} produtos | Valor: R$ ${dados.valor.toFixed(2).replace('.', ',')}\n`; dados.produtos.forEach(p => { relatorio += `   • ${p.nome}: ${p.estoque} un.\n`; }); }
+        const blob = new Blob([relatorio], { type: 'text/plain;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `RELATORIO_ESTOQUE_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.txt`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        alert('✅ Relatório gerado!');
+    }
+    
+    // VERIFICAR LOGIN
+    const usuario = JSON.parse(sessionStorage.getItem('usuario'));
+    if (!usuario) window.location.href = 'Login.html';
+    document.getElementById('userNome').textContent = usuario.nome;
+    document.getElementById('userAvatar').textContent = usuario.nome.charAt(0);
+    document.getElementById('userPerfil').textContent = usuario.login;
+    document.getElementById('logoutBtn').onclick = () => { sessionStorage.clear(); window.location.href = 'Login.html'; };
+    
+    // MENU HAMBURGUER
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (hamburgerBtn) { hamburgerBtn.addEventListener('click', function() { sidebar.classList.toggle('open'); if (overlay) overlay.style.display = 'block'; }); }
+    if (overlay) { overlay.addEventListener('click', function() { sidebar.classList.remove('open'); overlay.style.display = 'none'; }); }
+    
+    document.getElementById('btnExportarJSON').onclick = exportarJSON;
+    document.getElementById('btnRelatorio').onclick = gerarRelatorio;
+    
+    const tbody = document.getElementById('tabelaProdutos');
+    const buscaInput = document.getElementById('busca');
+    const filtroCat = document.getElementById('filtroCategoria');
+    const filtroEst = document.getElementById('filtroEstoque');
+    const modal = document.getElementById('modalProduto');
+    const modalTitulo = document.getElementById('modalTitulo');
+    
+    function popularCategorias() { const cats = [...new Set(PRODUTOS.map(p => p.categoria))]; filtroCat.innerHTML = '<option value="">Todas categorias</option>' + cats.map(c => `<option value="${c}">${c}</option>`).join(''); }
+    function renderizarTabela() {
+        const busca = buscaInput.value.toLowerCase();
+        const categoria = filtroCat.value;
+        const filtroEstoqueValor = filtroEst.value;
+        let filtrados = PRODUTOS.filter(p => { const matchBusca = p.nome.toLowerCase().includes(busca) || p.sku.includes(busca); const matchCat = !categoria || p.categoria === categoria; let matchEst = true; if (filtroEstoqueValor === 'critico') matchEst = p.estoque < 10; else if (filtroEstoqueValor === 'baixo') matchEst = p.estoque >= 10 && p.estoque < 30; else if (filtroEstoqueValor === 'normal') matchEst = p.estoque >= 30; return matchBusca && matchCat && matchEst; });
+        if (filtrados.length === 0) { tbody.innerHTML = '<tr><td colspan="6">Nenhum produto encontrado</td></tr>'; return; }
+        tbody.innerHTML = filtrados.map(p => `<tr><td>${p.sku}</td><td><strong>${p.nome}</strong></td><td>${p.categoria}</td><td><span class="${getStatusClass(p.estoque)}">${p.estoque} • ${getStatusTexto(p.estoque)}</span></td><td>${formatarMoeda(p.preco)}</td><td class="acoes"><button onclick="editarProduto(${p.id})">✏️</button><button onclick="movimentar(${p.id},'entrada')">+</button><button onclick="movimentar(${p.id},'saida')">-</button><button onclick="excluirProduto(${p.id})">🗑️</button></tr>`).join('');
+    }
+    
+    window.editarProduto = function(id) { const p = PRODUTOS.find(p => p.id === id); if (!p) return; document.getElementById('produtoId').value = p.id; document.getElementById('produtoSku').value = p.sku; document.getElementById('produtoNome').value = p.nome; document.getElementById('produtoCategoria').value = p.categoria; document.getElementById('produtoEstoque').value = p.estoque; document.getElementById('produtoPreco').value = p.preco; modalTitulo.textContent = 'Editar Produto'; modal.style.display = 'flex'; };
+    window.excluirProduto = function(id) { if (confirm('Excluir produto?')) { PRODUTOS = PRODUTOS.filter(p => p.id !== id); salvarDados(); popularCategorias(); renderizarTabela(); } };
+    window.movimentar = function(id, tipo) { const p = PRODUTOS.find(p => p.id === id); const qtd = parseInt(prompt(`${tipo === 'entrada' ? 'ENTRADA' : 'SAÍDA'} de ${p.nome}\nQuantidade:`)); if (isNaN(qtd) || qtd <= 0) return; if (tipo === 'saida' && qtd > p.estoque) { alert(`Estoque insuficiente!`); return; } p.estoque += tipo === 'entrada' ? qtd : -qtd; TRANSACOES.push({ id: nextTxId++, produtoId: p.id, produtoNome: p.nome, tipo, quantidade: qtd, data: new Date().toISOString(), obs: tipo === 'entrada' ? 'Compra' : 'Venda' }); salvarDados(); renderizarTabela(); alert(`${tipo === 'entrada' ? 'Entrada' : 'Saída'} de ${qtd} un. registrada!`); };
+    function salvarProduto() { const id = document.getElementById('produtoId').value; const sku = document.getElementById('produtoSku').value; const nome = document.getElementById('produtoNome').value; const categoria = document.getElementById('produtoCategoria').value; const estoque = parseInt(document.getElementById('produtoEstoque').value); const preco = parseFloat(document.getElementById('produtoPreco').value); if (!nome || !categoria || isNaN(estoque) || isNaN(preco)) { alert('Preencha tudo!'); return; } if (id) { const idx = PRODUTOS.findIndex(p => p.id == id); if (idx !== -1) PRODUTOS[idx] = { ...PRODUTOS[idx], sku, nome, categoria, estoque, preco }; } else { PRODUTOS.push({ id: nextId++, sku: sku || String(nextId).padStart(6,'0'), nome, categoria, estoque, preco }); } salvarDados(); modal.style.display = 'none'; popularCategorias(); renderizarTabela(); alert('Produto salvo!'); }
+    document.getElementById('btnNovo').onclick = () => { document.getElementById('produtoId').value = ''; document.getElementById('produtoSku').value = ''; document.getElementById('produtoNome').value = ''; document.getElementById('produtoCategoria').value = ''; document.getElementById('produtoEstoque').value = ''; document.getElementById('produtoPreco').value = ''; modalTitulo.textContent = 'Novo Produto'; modal.style.display = 'flex'; };
+    document.getElementById('cancelarModal').onclick = () => modal.style.display = 'none';
+    document.getElementById('salvarProduto').onclick = salvarProduto;
+    buscaInput.oninput = renderizarTabela;
+    filtroCat.onchange = renderizarTabela;
+    filtroEst.onchange = renderizarTabela;
+    window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+    popularCategorias();
+    renderizarTabela();
+</script>
+</body>
+</html> 

@@ -558,45 +558,89 @@
     }
     
     function gerarRelatorio() {
-        const total = PRODUTOS.length;
-        const valorTotal = PRODUTOS.reduce((t,p) => t + (p.estoque*p.preco),0);
-        const criticos = PRODUTOS.filter(p => p.estoque < 10);
-        const alerta = PRODUTOS.filter(p => p.estoque >= 10 && p.estoque < 30);
-        const saudaveis = PRODUTOS.filter(p => p.estoque >= 30);
-        const categorias = {};
-        PRODUTOS.forEach(p => {
-            if (!categorias[p.categoria]) categorias[p.categoria] = { count: 0, valor: 0, produtos: [] };
-            categorias[p.categoria].count++;
-            categorias[p.categoria].valor += p.estoque * p.preco;
-            categorias[p.categoria].produtos.push(p);
-        });
-        let relatorio = `╔══════════════════════════════════════════════════════════════════╗
-║              FERKAUTOPARTS - RELATÓRIO DE ESTOQUE                ║
-║              Data: ${new Date().toLocaleString('pt-BR')}               ║
-╚══════════════════════════════════════════════════════════════════╝
+    const total = PRODUTOS.length;
+    const valorTotal = PRODUTOS.reduce((t, p) => t + (p.estoque * p.preco), 0);
+    const criticos = PRODUTOS.filter(p => p.estoque < 10);
+    const alerta = PRODUTOS.filter(p => p.estoque >= 10 && p.estoque < 30);
+    const saudaveis = PRODUTOS.filter(p => p.estoque >= 30);
+    
+    const categorias = {};
+    PRODUTOS.forEach(p => {
+        if (!categorias[p.categoria]) {
+            categorias[p.categoria] = { count: 0, valor: 0, produtos: [] };
+        }
+        categorias[p.categoria].count++;
+        categorias[p.categoria].valor += p.estoque * p.preco;
+        categorias[p.categoria].produtos.push(p);
+    });
+    
+    const topProdutos = [...PRODUTOS].sort((a, b) => (b.estoque * b.preco) - (a.estoque * a.preco)).slice(0, 5);
+    
+    let relatorio = `=============================================================
+        RELATORIO DE ESTOQUE - FERKAUTOPARTS
+        Data: ${new Date().toLocaleString('pt-BR')}
+=============================================================
 
-📊 RESUMO GERAL
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-• Total de produtos: ${total}
-• Valor total em estoque: R$ ${valorTotal.toFixed(2).replace('.', ',')}
-• Produtos saudáveis (≥30): ${saudaveis.length}
-• Produtos em alerta (10-29): ${alerta.length}
-• Produtos CRÍTICOS (<10): ${criticos.length}
+[1] RESUMO GERAL
+-------------------------------------------------------------
+Total de produtos: ${total}
+Valor total em estoque: R$ ${valorTotal.toFixed(2).replace('.', ',')}
+Produtos saudaveis (>=30): ${saudaveis.length}
+Produtos em alerta (10-29): ${alerta.length}
+Produtos CRITICOS (<10): ${criticos.length}
 
-⚠️ PRODUTOS CRÍTICOS (URGENTE!)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2] PRODUTOS CRITICOS (URGENTE!)
+-------------------------------------------------------------
 `;
-        criticos.forEach(p => { relatorio += `• ${p.nome} (SKU: ${p.sku}) - Estoque: ${p.estoque} - Preço: R$ ${p.preco.toFixed(2).replace('.', ',')}\n`; });
-        relatorio += `\n📁 PRODUTOS POR CATEGORIA\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-        for (const [cat, dados] of Object.entries(categorias)) { relatorio += `\n${cat}: ${dados.count} produtos | Valor: R$ ${dados.valor.toFixed(2).replace('.', ',')}\n`; dados.produtos.forEach(p => { relatorio += `   • ${p.nome}: ${p.estoque} un.\n`; }); }
-        const blob = new Blob([relatorio], { type: 'text/plain;charset=utf-8' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `RELATORIO_ESTOQUE_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.txt`;
-        link.click();
-        URL.revokeObjectURL(link.href);
-        alert('✅ Relatório gerado!');
+    if (criticos.length > 0) {
+        criticos.forEach(p => {
+            relatorio += `${p.nome} (SKU: ${p.sku})\n`;
+            relatorio += `   Estoque: ${p.estoque} | Preco: R$ ${p.preco.toFixed(2).replace('.', ',')}\n`;
+            relatorio += `   Sugestao: comprar ${50 - p.estoque} unidades\n\n`;
+        });
+    } else {
+        relatorio += `Nenhum produto critico no momento.\n`;
     }
+    
+    relatorio += `[3] PRODUTOS POR CATEGORIA
+-------------------------------------------------------------\n`;
+    for (const [categoria, dados] of Object.entries(categorias)) {
+        relatorio += `\nCATEGORIA: ${categoria}\n`;
+        relatorio += `   Quantidade: ${dados.count} produtos\n`;
+        relatorio += `   Valor total: R$ ${dados.valor.toFixed(2).replace('.', ',')}\n`;
+        relatorio += `   Produtos:\n`;
+        dados.produtos.forEach(p => {
+            const status = p.estoque < 10 ? 'CRITICO' : (p.estoque < 30 ? 'ALERTA' : 'OK');
+            relatorio += `      - ${p.nome}: ${p.estoque} un. (${status})\n`;
+        });
+    }
+    
+    relatorio += `\n[4] TOP 5 PRODUTOS COM MAIOR VALOR
+-------------------------------------------------------------\n`;
+    for (let i = 0; i < topProdutos.length; i++) {
+        const p = topProdutos[i];
+        const valorProduto = p.estoque * p.preco;
+        relatorio += `${i+1}. ${p.nome}\n`;
+        relatorio += `   Estoque: ${p.estoque} un. x R$ ${p.preco.toFixed(2).replace('.', ',')} = R$ ${valorProduto.toFixed(2).replace('.', ',')}\n\n`;
+    }
+    
+    relatorio += `=============================================================
+RELATORIO GERADO PELO SISTEMA ERP FERKAUTOPARTS
+Versao 1.0 - Controle de Estoque
+=============================================================`;
+    
+    const blob = new Blob([relatorio], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.download = `RELATORIO_ESTOQUE_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    alert('✅ Relatorio gerado com sucesso! Verifique sua pasta de downloads.');
+}
     
     // VERIFICAR LOGIN
     const usuario = JSON.parse(sessionStorage.getItem('usuario'));

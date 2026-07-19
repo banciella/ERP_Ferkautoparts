@@ -1,0 +1,267 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Newtonsoft.Json;
+
+namespace RelatorioEstoque
+{
+    class Produto
+    {
+        public int Id { get; set; }
+        public string Sku { get; set; }
+        public string Nome { get; set; }
+        public int Estoque { get; set; }
+        public string Categoria { get; set; }
+        public double Preco { get; set; }
+    }
+
+    class Transacao
+    {
+        public int Id { get; set; }
+        public string ProdutoNome { get; set; }
+        public string Tipo { get; set; }
+        public int Quantidade { get; set; }
+        public string Data { get; set; }
+        public string Obs { get; set; }
+    }
+
+    class DadosCompletos
+    {
+        public List<Produto> Produtos { get; set; }
+        public List<Transacao> Transacoes { get; set; }
+        public string DataExportacao { get; set; }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("╔════════════════════════════════════════════════════════════════╗");
+            Console.WriteLine("║              RELATÓRIO DE ESTOQUE - FERKAUTOPARTS              ║");
+            Console.WriteLine("║                      SISTEMA ERP DE PEÇAS                      ║");
+            Console.WriteLine("╚════════════════════════════════════════════════════════════════╝\n");
+            Console.ResetColor();
+
+            // Procura o arquivo JSON
+            string pastaDownloads = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\Downloads";
+            string caminhoJson = Path.Combine(pastaDownloads, "dados_estoque.json");
+            string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            string caminhoDesktopJson = Path.Combine(desktopPath, "dados_estoque.json");
+
+            if (!File.Exists(caminhoJson) && !File.Exists(caminhoDesktopJson))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("❌ ERRO: Arquivo 'dados_estoque.json' NÃO ENCONTRADO!");
+                Console.ResetColor();
+                Console.WriteLine("\n📌 SOLUÇÃO:");
+                Console.WriteLine("1. Abra o sistema web no navegador");
+                Console.WriteLine("2. Clique no botão 'Exportar JSON'");
+                Console.WriteLine("3. Aguarde o download do arquivo");
+                Console.WriteLine("4. Volte aqui e pressione qualquer tecla");
+                Console.ReadKey();
+                return;
+            }
+
+            string caminhoFinal = File.Exists(caminhoJson) ? caminhoJson : caminhoDesktopJson;
+            Console.WriteLine($"📂 Arquivo lido com sucesso: {caminhoFinal}\n");
+
+            string json = File.ReadAllText(caminhoFinal);
+            var dados = JsonConvert.DeserializeObject<DadosCompletos>(json);
+
+            if (dados?.Produtos == null)
+            {
+                Console.WriteLine("❌ Erro ao ler os dados.");
+                return;
+            }
+
+            // ========== CÁLCULOS ==========
+            double valorTotalEstoque = dados.Produtos.Sum(p => p.Estoque * p.Preco);
+            var produtosCriticos = dados.Produtos.Where(p => p.Estoque < 10).ToList();
+            var produtosAlerta = dados.Produtos.Where(p => p.Estoque >= 10 && p.Estoque < 30).ToList();
+            var produtosSaudaveis = dados.Produtos.Where(p => p.Estoque >= 30).ToList();
+            
+            var categorias = dados.Produtos.GroupBy(p => p.Categoria)
+                .Select(g => new { 
+                    Nome = g.Key, 
+                    Quantidade = g.Count(), 
+                    Valor = g.Sum(p => p.Estoque * p.Preco),
+                    Itens = g.ToList()
+                })
+                .OrderByDescending(g => g.Valor);
+
+            int totalEntradas = dados.Transacoes?.Count(t => t.Tipo == "entrada") ?? 0;
+            int totalSaidas = dados.Transacoes?.Count(t => t.Tipo == "saida") ?? 0;
+
+            // ========== GERAR RELATÓRIO FORMATADO ==========
+            string relatorio = $@"
+╔══════════════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                          ║
+║                              FERKAUTOPARTS - RELATÓRIO GERENCIAL                         ║
+║                                    SISTEMA DE CONTROLE DE ESTOQUE                        ║
+║                                                                                          ║
+║                              Data de emissão: {DateTime.Now:dd/MM/yyyy HH:mm:ss}                      ║
+║                                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════════════════════╝
+
+
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                    1. RESUMO EXECUTIVO                                   │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
+    📊 INDICADORES PRINCIPAIS
+    ─────────────────────────────────────────────────────────────────────────────────────
+    
+       • Total de produtos cadastrados . . . . . . . . . . . : {dados.Produtos.Count,6}
+       • Valor total do estoque . . . . . . . . . . . . . . . : {valorTotalEstoque.ToString("C"),20}
+       • Movimentações registradas . . . . . . . . . . . . . : {(totalEntradas + totalSaidas),6}
+          ├─ Entradas . . . . . . . . . . . . . . . . . . . . : {totalEntradas,6}
+          └─ Saídas . . . . . . . . . . . . . . . . . . . . . : {totalSaidas,6}
+
+
+    📈 SITUAÇÃO DO ESTOQUE
+    ─────────────────────────────────────────────────────────────────────────────────────
+    
+       • Produtos saudáveis (≥30 unidades) . . . . . . . . . : {produtosSaudaveis.Count,6}
+       • Produtos em alerta (10 a 29 unidades) . . . . . . . : {produtosAlerta.Count,6}
+       • Produtos em estado crítico (<10 unidades) . . . . . : {produtosCriticos.Count,6}
+
+
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                2. PRODUTOS EM ESTADO CRÍTICO                             │
+│                              (ATENÇÃO - NECESSITAM REPOSIÇÃO)                            │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
+";
+
+            if (produtosCriticos.Count > 0)
+            {
+                relatorio += $@"
+    ┌─────────┬──────────────────────────────────────────┬──────────┬─────────────────┬──────────────────┐
+    │  SKU    │         NOME DO PRODUTO                  │ ESTOQUE  │   PREÇO UNIT.   │   SUGESTÃO       │
+    ├─────────┼──────────────────────────────────────────┼──────────┼─────────────────┼──────────────────┤
+";
+                foreach (var p in produtosCriticos)
+                {
+                    int sugestao = 50 - p.Estoque;
+                    relatorio += $"    │ {p.Sku,-7} │ {p.Nome,-40} │ {p.Estoque,8} │ {p.Preco.ToString("C"),13} │ comprar {sugestao,3} un. │\n";
+                }
+                relatorio += @"    └─────────┴──────────────────────────────────────────┴──────────┴─────────────────┴──────────────────┘
+";
+            }
+            else
+            {
+                relatorio += @"
+    ✅ Nenhum produto em estado crítico no momento. Parabéns pelo controle de estoque!
+";
+            }
+
+            relatorio += @"
+
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                3. PRODUTOS POR CATEGORIA                                 │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
+";
+
+            foreach (var cat in categorias)
+            {
+                relatorio += $@"
+    📁 CATEGORIA: {cat.Nome}
+    ─────────────────────────────────────────────────────────────────────────────────────
+       • Quantidade de produtos . . . . . . . . . . . : {cat.Quantidade}
+       • Valor total em estoque . . . . . . . . . . . : {cat.Valor.ToString("C")}
+       
+       Produtos desta categoria:
+";
+                foreach (var p in cat.Itens)
+                {
+                    string status = p.Estoque < 10 ? "⚠️ CRÍTICO" : (p.Estoque < 30 ? "⚠️ ALERTA" : "✅ OK");
+                    relatorio += $"       • {p.Nome} - Estoque: {p.Estoque} un. - Preço: {p.Preco.ToString("C")} - Status: {status}\n";
+                }
+                relatorio += "\n";
+            }
+
+            relatorio += @"
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                  4. ANÁLISE GERENCIAL                                    │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
+";
+
+            // Análises
+            if (produtosCriticos.Count > 0)
+            {
+                relatorio += $@"
+    ⚠️  RECOMENDAÇÃO DE COMPRA URGENTE
+    
+    Identificamos {produtosCriticos.Count} produto(s) com estoque abaixo do nível mínimo
+    recomendado (10 unidades). Sugerimos a reposição imediata para evitar falta no
+    atendimento aos clientes.
+    
+    Valor estimado para reposição completa: R$ {produtosCriticos.Sum(p => (50 - p.Estoque) * p.Preco).ToString("N2")}
+
+";
+            }
+
+            if (produtosAlerta.Count > 0)
+            {
+                relatorio += $@"
+    📌 RECOMENDAÇÃO DE ACOMPANHAMENTO
+    
+    {produtosAlerta.Count} produto(s) estão com estoque em nível de alerta (10-29 unidades).
+    Recomendamos planejar a reposição nos próximos 15 dias para estes itens.
+
+";
+            }
+
+            // Top produtos
+            var topProdutos = dados.Produtos.OrderByDescending(p => p.Estoque * p.Preco).Take(5).ToList();
+            relatorio += $@"
+    🏆 PRODUTOS COM MAIOR VALOR EM ESTOQUE (TOP 5)
+    
+";
+            int rank = 1;
+            foreach (var p in topProdutos)
+            {
+                double valorProduto = p.Estoque * p.Preco;
+                relatorio += $"       {rank}º. {p.Nome}\n";
+                relatorio += $"           Estoque: {p.Estoque} un. x {p.Preco.ToString("C")} = {valorProduto.ToString("C")}\n\n";
+                rank++;
+            }
+
+            relatorio += @"
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                         │
+│                              RELATÓRIO GERADO POR:                                      │
+│                              SISTEMA ERP FERKAUTOPARTS                                  │
+│                              Versão 1.0 - Controle de Estoque                          │
+│                                                                                         │
+│                    Este relatório é gerado automaticamente pelo sistema.               │
+│           Para mais informações, utilize o sistema web ou contate o suporte
+│                                suporteMTGSystem@gmail.com
+│                                                                                         │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+";
+
+            // Salvar relatório
+            string desktopPathFinal = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            string caminhoRelatorio = Path.Combine(desktopPathFinal, "RELATORIO_ESTOQUE_FERKAUTOPARTS.txt");
+            File.WriteAllText(caminhoRelatorio, relatorio, System.Text.Encoding.UTF8);
+
+            // Mostrar no console também
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine(relatorio);
+            Console.ResetColor();
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"\n✅ RELATÓRIO GERADO COM SUCESSO!");
+            Console.WriteLine($"📁 Arquivo salvo em: {caminhoRelatorio}");
+            Console.ResetColor();
+
+            Console.WriteLine("\nPressione qualquer tecla para sair...");
+            Console.ReadKey();
+        }
+    }
+}

@@ -28,3 +28,6 @@ Construção do Relatório: Programar em C# para que os dados saiam da tela e ch
 
 🛠️ Como testar este projeto?
 https://banciella.github.io/ERP_Ferkautoparts/
+
+login:admin
+senha:123456

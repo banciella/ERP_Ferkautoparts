@@ -27,6 +27,4 @@ Design e Front-end: Criar as telas onde o funcionário vai cadastrar os produtos
 Construção do Relatório: Programar em C# para que os dados saiam da tela e cheguem na parte de download da máquina.
 
 🛠️ Como testar este projeto?
-Atualmente, o projeto está em fase de desenvolvimento.
-
-Se você for desenvolvedor, pode baixar o código usando:
+https://banciella.github.io/ERP_Ferkautoparts/

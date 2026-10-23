@@ -1,0 +1,30 @@
+### Testes da API (extensão REST Client do VS Code: clique em "Send Request")
+@base = http://localhost:8080
+
+### Saúde
+GET {{base}}/health
+
+### Login
+# @name login
+POST {{base}}/api/auth/login
+Content-Type: application/json
+
+{ "login": "admin", "senha": "admin123" }
+
+### Listar produtos
+GET {{base}}/api/produtos
+Authorization: Bearer {{login.response.body.token}}
+
+### Registrar saída
+POST {{base}}/api/transacoes
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "produtoId": 1, "tipo": "saida", "quantidade": 2, "observacao": "Venda balcão" }
+
+### Saída maior que o estoque (deve dar 400 - bloqueado pelo trigger)
+POST {{base}}/api/transacoes
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{ "produtoId": 3, "tipo": "saida", "quantidade": 999 }

@@ -1,33 +1,51 @@
-MTG-SYSTEM
-Projeto ERP Industrial: Automatizando o Coração da Fábrica
+# ERP Ferkautoparts – PIM IV
 
-Olá! Me chamo Felipe Comenale Banciella e este é o meu projeto de um sistema ERP (Enterprise Resource Planning).
+Evolução do ERP Ferkautoparts: banco de dados relacional na nuvem, API REST em .NET, front-end web integrado, app mobile em Kotlin, versionamento com Git e CI/CD com GitHub Actions.
 
-Em termos simples: estou construindo uma ferramenta inteligente para que indústrias parem de usar planilhas de papel ou arquivos confusos e passem a controlar todo o seu estoque e parceiros em um só lugar de forma automática.
+## Arquitetura
 
-🤔 O que este sistema faz?
-Imagine uma fábrica que produz peças. Ela precisa saber:
+```
+[Web (HTML/JS)] ─┐
+                 ├─ HTTPS/JSON + JWT ─► [API ASP.NET Core 8 – Docker no Render] ─► [PostgreSQL – Supabase]
+[App Kotlin]   ──┘
+```
 
-Quanto tem de material no estoque? (Produtos)
-Para quem ela está vendendo? (Clientes)
-De quem ela compra a matéria-prima? (Fornecedores)
-Este sistema organiza esse "triângulo" de informações para que nada falte na linha de produção.
+## Estrutura
+| Pasta | Conteúdo |
+|---|---|
+| `database/` | Script SQL: tabelas, triggers, procedures, view e dados iniciais |
+| `api/` | API REST em C# (.NET 8) |
+| `api/wwwroot/` | Front-end web (HTML/CSS/JS) servido pela API |
+| `mobile/` | App Android em Kotlin |
+| `.github/workflows/` | Pipeline de CI/CD |
+| `Dockerfile` | Container da aplicação |
 
-🏗️ Como ele é construído? (Explicando as peças)
-Para quem não é da área, um sistema é como um carro:
+## Como rodar (sem instalar nada – GitHub Codespaces)
+1. No GitHub: **Code > Codespaces > Create codespace on main**.
+2. No terminal do Codespace:
+   ```bash
+   export DATABASE_URL="postgresql://...supabase..."
+   export JWT_KEY="uma-chave-com-32-ou-mais-caracteres-aqui"
+   dotnet run --project api
+   ```
+3. Abrir a porta 8080 → tela de login (usuário `admin`, senha `admin123`, trocar depois).
 
-O Visual (A Carroceria): Desenvolvido com HTML, CSS e JavaScript. É a parte que o usuário vê, clica e interage. É aqui que os botões são bonitos e as tabelas são fáceis de ler.
-O Relatório: Feito em C# (C-Sharp). É a parte que mostra como esta situaçõa da empresa no momento que se fez o contro de estoque .
-O Cofre (Banco de Dados): Utilizamos tecnologia SQL. Imagine um arquivo super moderno e rápido onde guardamos todas as informações da empresa com máxima segurança.
-📈 O Passo a Passo do Projeto
-Minha jornada de desenvolvimento segue estas etapas:
+## Endpoints principais
+| Método | Rota | Descrição |
+|---|---|---|
+| POST | `/api/auth/login` | Login, devolve token JWT |
+| GET/POST | `/api/produtos` | Listar / cadastrar produtos |
+| PUT/DELETE | `/api/produtos/{id}` | Editar / desativar produto |
+| GET/POST | `/api/transacoes` | Listar / registrar entrada e saída |
+| GET | `/api/dashboard` | Indicadores do estoque |
+| GET/POST | `/api/fornecedores`, `/api/clientes` | Cadastros |
+| GET | `/health` | Monitoramento |
 
-Planejamento: Entender o que uma indústria precisa no dia a dia.
-Design e Front-end: Criar as telas onde o funcionário vai cadastrar os produtos.
-Construção do Relatório: Programar em C# para que os dados saiam da tela e cheguem na parte de download da máquina.
+## Fluxo de versionamento
+- `main` → produção (deploy automático)
+- `develop` → integração
+- `feature/nome-da-tarefa` → cada tarefa do Kanban
+- Commits no padrão: `feat:`, `fix:`, `docs:`, `chore:`
 
-🛠️ Como testar este projeto?
-https://banciella.github.io/ERP_Ferkautoparts/
-
-login: admin 
-| senha: 123456
+## Segurança
+- Senhas com hash BCrypt; autenticação JWT; segredos em variáveis de ambiente (nunca no código).

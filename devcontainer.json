@@ -1,0 +1,6 @@
+{
+  "name": "ERP Ferkautoparts",
+  "image": "mcr.microsoft.com/devcontainers/dotnet:8.0",
+  "forwardPorts": [8080],
+  "customizations": { "vscode": { "extensions": ["ms-dotnettools.csharp", "humao.rest-client"] } }
+}
